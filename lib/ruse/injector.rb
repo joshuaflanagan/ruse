@@ -1,31 +1,61 @@
 module Ruse
   class Injector
-    def initialize
-      @object_factory = ObjectFactory.new(self)
-    end
-
     def get(identifier)
+      resolver = find_resolver identifier
+      raise UnknownServiceError.new(identifier) unless resolver
+      resolver.build identifier
+    end
+
+    private
+
+    def find_resolver(identifier)
+      resolvers.detect {|h|
+        h.can_build?(identifier)
+      }
+    end
+
+    def resolvers
+      @resolvers ||= [
+        TypeResolver.new(self),
+      ]
+    end
+  end
+
+  class UnknownServiceError < StandardError; end
+
+  class TypeResolver
+    def initialize(injector)
+      @injector = injector
+    end
+
+    def can_build?(identifier)
+      type_name = self.class.classify(identifier)
+      Object.const_defined?(type_name)
+    end
+
+    def build(identifier)
       type = resolve_type identifier
-      @object_factory.build(type)
+      object_factory.build(type)
     end
 
-    def resolve_type(identifier)
-      type_name = classify(identifier)
-      unless Object.const_defined?(type_name)
-        raise UnknownServiceError.new(type_name)
-      end
-      Object.const_get type_name
-    end
-
-    def classify(term)
+    def self.classify(term)
       # lifted from active_support gem: lib/active_support/inflector/methods.rb
       string = term.to_s
       string = string.sub(/^[a-z\d]*/) { $&.capitalize }
       string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{ $2.capitalize}" }.gsub('/', '::')
     end
-  end
 
-  class UnknownServiceError < StandardError; end
+    private
+
+    def object_factory
+      @object_factory ||= ObjectFactory.new(@injector)
+    end
+
+    def resolve_type(identifier)
+      type_name = self.class.classify(identifier)
+      Object.const_get type_name
+    end
+  end
 
   class ObjectFactory
     attr_reader :injector

@@ -35,10 +35,14 @@ describe Ruse::Injector do
   end
 end
 
-# classify will be moved
 describe "classify" do
   it "converts an underscored_term to PascalCase" do
-    resolver = Ruse::Injector.new
+    resolver = Ruse::TypeResolver
     resolver.classify("camel_case").must_equal("CamelCase")
+  end
+
+  it "echoes back a PascalCase term" do
+    resolver = Ruse::TypeResolver
+    resolver.classify("PascalCase").must_equal("PascalCase")
   end
 end
