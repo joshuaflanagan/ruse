@@ -29,7 +29,7 @@ describe Ruse::Injector do
   end
 
   it "retrieves an instance based on a configured alias" do
-    injector.configure special_service: "ServiceA"
+    injector.configure aliases: {special_service: "ServiceA"}
     injector.get(:special_service).must_be_instance_of(ServiceA)
   end
 
@@ -48,6 +48,12 @@ describe Ruse::Injector do
     instance1 = Ruse::Injector.new.get("ConsumerC")
     instance2 = Ruse::Injector.new.get("ConsumerC")
     instance1.wont_be_same_as(instance2)
+  end
+
+  it "can retrieve a registered value object" do
+    value_object = Object.new
+    injector.configure values: { example: value_object }
+    injector.get(:example).must_be_same_as(value_object)
   end
 
   class ServiceA; end
