@@ -38,6 +38,12 @@ describe Ruse::Injector do
     instance.ca.a.must_be_same_as(instance.cb.a)
   end
 
+  it "can retrieve a registered value object" do
+    value_object = Object.new
+    injector.configure values: { example: value_object }
+    injector.get(:example).must_be_same_as(value_object)
+  end
+
 
   class ServiceA; end
   class ServiceB; end

@@ -25,11 +25,18 @@ module Ruse
     end
 
     def configuration
-      @configuration ||= { aliases:{} }
+      @configuration ||= {
+       aliases:{},
+       values: {},
+      }
     end
 
     def aliases
       configuration[:aliases]
+    end
+
+    def values
+      configuration[:values]
     end
 
     def find_resolver(identifier)
@@ -40,12 +47,29 @@ module Ruse
 
     def resolvers
       @resolvers ||= [
+        ValueResolver.new(values),
         TypeResolver.new(self),
       ]
     end
   end
 
   class UnknownServiceError < StandardError; end
+
+  class ValueResolver
+    attr_reader :values
+
+    def initialize(values)
+      @values = values
+    end
+
+    def can_build?(identifier)
+      values.key? identifier
+    end
+
+    def build(identifier)
+      values.fetch(identifier)
+    end
+  end
 
   class TypeResolver
     def initialize(injector)
