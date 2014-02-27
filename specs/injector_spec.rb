@@ -29,7 +29,7 @@ describe Ruse::Injector do
   end
 
   it "retrieves an instance based on a configured alias" do
-    injector.configure special_service: "ServiceA"
+    injector.configure aliases: {special_service: "ServiceA"}
     injector.get(:special_service).must_be_instance_of(ServiceA)
   end
 

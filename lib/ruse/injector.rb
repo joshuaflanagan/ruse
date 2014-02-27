@@ -25,11 +25,11 @@ module Ruse
     end
 
     def configuration
-      @configuration ||= {}
+      @configuration ||= { aliases:{} }
     end
 
     def aliases
-      configuration
+      configuration[:aliases]
     end
 
     def find_resolver(identifier)
