@@ -28,6 +28,7 @@ module Ruse
       @configuration ||= {
        aliases:{},
        values: {},
+       factories: {},
       }
     end
 
@@ -39,6 +40,10 @@ module Ruse
       configuration[:values]
     end
 
+    def factories
+      configuration[:factories]
+    end
+
     def find_resolver(identifier)
       resolvers.detect {|h|
         h.can_build?(identifier)
@@ -47,6 +52,7 @@ module Ruse
 
     def resolvers
       @resolvers ||= [
+        ProcResolver.new(factories),
         ValueResolver.new(values),
         TypeResolver.new(self),
       ]
@@ -54,6 +60,21 @@ module Ruse
   end
 
   class UnknownServiceError < StandardError; end
+
+  class ProcResolver
+    attr_reader :factories
+    def initialize(factories)
+      @factories = factories
+    end
+    def can_build?(identifier)
+      factories.key? identifier
+    end
+
+    def build(identifier)
+      factory = factories.fetch(identifier)
+      factory.call
+    end
+  end
 
   class ValueResolver
     attr_reader :values

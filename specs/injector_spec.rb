@@ -61,6 +61,16 @@ describe Ruse::Injector do
     injector.get(:example).must_be_same_as(value_object)
   end
 
+  it "can retrieve an object via delayed evaluation" do
+    the_value = 42
+    injector.configure factories: { example: -> { Delayed.new(the_value) } }
+    the_value = 88
+    instance = injector.get(:example)
+    instance.must_be_instance_of(Delayed)
+    instance.value.must_equal(88)
+  end
+
+
   class ServiceA; end
   class ServiceB; end
 
@@ -84,6 +94,13 @@ describe Ruse::Injector do
     def initialize(consumer_a, consumer_b)
       @ca = consumer_a
       @cb = consumer_b
+    end
+  end
+
+  class Delayed
+    attr_reader :value
+    def initialize(value)
+      @value = value
     end
   end
 
