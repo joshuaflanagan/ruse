@@ -38,6 +38,17 @@ describe Ruse::Injector do
     instance.ca.a.must_be_same_as(instance.cb.a)
   end
 
+  it "returns same instance of a given service for life of injector" do
+    instance1 = injector.get("ConsumerC")
+    instance2 = injector.get("ConsumerC")
+    instance1.must_be_same_as(instance2)
+  end
+
+  it "returns different instance of given service for different injectors" do
+    instance1 = Ruse::Injector.new.get("ConsumerC")
+    instance2 = Ruse::Injector.new.get("ConsumerC")
+    instance1.wont_be_same_as(instance2)
+  end
 
   class ServiceA; end
   class ServiceB; end
