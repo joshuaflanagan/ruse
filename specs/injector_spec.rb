@@ -23,6 +23,12 @@ describe Ruse::Injector do
     instance.service2.must_be_instance_of(OtherService)
   end
 
+  it "retrieves an instance based on a configured alias" do
+    injector = Ruse::Injector.new
+    injector.configure special_service: "SomeService"
+    injector.get(:special_service).must_be_instance_of(SomeService)
+  end
+
   class SomeService; end
   class OtherService; end
 

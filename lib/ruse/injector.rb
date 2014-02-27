@@ -1,12 +1,25 @@
 module Ruse
   class Injector
     def get(identifier)
+      identifier = aliases[identifier] || identifier
       resolver = find_resolver identifier
       raise UnknownServiceError.new(identifier) unless resolver
       resolver.build identifier
     end
 
+    def configure(settings)
+      configuration.merge! settings
+    end
+
     private
+
+    def configuration
+      @configuration ||= {}
+    end
+
+    def aliases
+      configuration
+    end
 
     def find_resolver(identifier)
       resolvers.detect {|h|
