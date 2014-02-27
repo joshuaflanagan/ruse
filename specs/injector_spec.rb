@@ -33,6 +33,12 @@ describe Ruse::Injector do
     injector.get(:special_service).must_be_instance_of(ServiceA)
   end
 
+  it "returns same instance of a given service within a single request" do
+    instance = injector.get("ConsumerC")
+    instance.ca.a.must_be_same_as(instance.cb.a)
+  end
+
+
   class ServiceA; end
   class ServiceB; end
 
@@ -43,6 +49,22 @@ describe Ruse::Injector do
       @b = service_b
     end
   end
+
+  class ConsumerB
+    attr_reader :a
+    def initialize(service_a)
+      @a = service_a
+    end
+  end
+
+  class ConsumerC
+    attr_reader :ca, :cb
+    def initialize(consumer_a, consumer_b)
+      @ca = consumer_a
+      @cb = consumer_b
+    end
+  end
+
 end
 
 describe "classify" do

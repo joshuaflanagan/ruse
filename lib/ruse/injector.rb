@@ -2,9 +2,11 @@ module Ruse
   class Injector
     def get(identifier)
       identifier = aliases[identifier] || identifier
-      resolver = find_resolver identifier
-      raise UnknownServiceError.new(identifier) unless resolver
-      resolver.build identifier
+      cache_fetch(identifier) do
+        resolver = find_resolver identifier
+        raise UnknownServiceError.new(identifier) unless resolver
+        resolver.build identifier
+      end
     end
 
     def configure(settings)
@@ -12,6 +14,15 @@ module Ruse
     end
 
     private
+
+    def cache_fetch(identifier, &block)
+      return cache[identifier] if cache.key?(identifier)
+      cache[identifier] = block.call
+    end
+
+    def cache
+      @cache ||= {}
+    end
 
     def configuration
       @configuration ||= {}
