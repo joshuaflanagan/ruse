@@ -15,6 +15,11 @@ describe Ruse::Injector do
     injector.get(:service_a).must_be_instance_of(ServiceA)
   end
 
+  it "retrieves instance when identifier is namespaced class name" do
+    injector.get("Deep::Namespaced::Service").
+      must_be_instance_of(Deep::Namespaced::Service)
+  end
+
   it "raises UnknownServiceError for an identifier it cannot resolve" do
     ->{
       injector.get("cannot_be_resolved")
@@ -79,6 +84,13 @@ describe Ruse::Injector do
     def initialize(consumer_a, consumer_b)
       @ca = consumer_a
       @cb = consumer_b
+    end
+  end
+
+  module Deep
+    module Namespaced
+      class Service
+      end
     end
   end
 

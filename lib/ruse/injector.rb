@@ -78,7 +78,7 @@ module Ruse
 
     def can_build?(identifier)
       type_name = self.class.classify(identifier)
-      Object.const_defined?(type_name)
+      load_type type_name
     end
 
     def build(identifier)
@@ -95,13 +95,21 @@ module Ruse
 
     private
 
+    def load_type(type_name)
+      type_name.split('::').reduce(Object){|ns, name|
+        if ns.const_defined? name
+          ns.const_get name
+        end
+      }
+    end
+
     def object_factory
       @object_factory ||= ObjectFactory.new(@injector)
     end
 
     def resolve_type(identifier)
       type_name = self.class.classify(identifier)
-      Object.const_get type_name
+      load_type type_name
     end
   end
 
