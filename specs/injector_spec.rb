@@ -3,40 +3,44 @@ require 'minitest/autorun'
 require 'ruse/injector'
 
 describe Ruse::Injector do
-  it "retrieves an instance it can infer from an identifier" do
-    injector = Ruse::Injector.new
-    injector.get("SomeService").must_be_instance_of(SomeService)
+  def injector
+    @injector ||= Ruse::Injector.new
+  end
+
+  it "retrieves instance when identifier is a class name" do
+    injector.get("ServiceA").must_be_instance_of(ServiceA)
+  end
+
+  it "retrieves instance when identifier can be converted to a class name" do
+    injector.get(:service_a).must_be_instance_of(ServiceA)
   end
 
   it "raises UnknownServiceError for an identifier it cannot resolve" do
-    injector = Ruse::Injector.new
     ->{
       injector.get("cannot_be_resolved")
     }.must_raise(Ruse::UnknownServiceError)
   end
 
   it "populates dependencies for the instance it retrieves" do
-    injector = Ruse::Injector.new
-    instance = injector.get("ServiceConsumer")
-    instance.must_be_instance_of(ServiceConsumer)
-    instance.service1.must_be_instance_of(SomeService)
-    instance.service2.must_be_instance_of(OtherService)
+    instance = injector.get("ConsumerA")
+    instance.must_be_instance_of(ConsumerA)
+    instance.a.must_be_instance_of(ServiceA)
+    instance.b.must_be_instance_of(ServiceB)
   end
 
   it "retrieves an instance based on a configured alias" do
-    injector = Ruse::Injector.new
-    injector.configure special_service: "SomeService"
-    injector.get(:special_service).must_be_instance_of(SomeService)
+    injector.configure special_service: "ServiceA"
+    injector.get(:special_service).must_be_instance_of(ServiceA)
   end
 
-  class SomeService; end
-  class OtherService; end
+  class ServiceA; end
+  class ServiceB; end
 
-  class ServiceConsumer
-    attr_reader :service1, :service2
-    def initialize(some_service, other_service)
-      @service1 = some_service
-      @service2 = other_service
+  class ConsumerA
+    attr_reader :a, :b
+    def initialize(service_a, service_b)
+      @a = service_a
+      @b = service_b
     end
   end
 end
