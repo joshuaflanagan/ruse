@@ -82,19 +82,78 @@ all the way down the object graph.
 
 ## Instance Resolution
 
-Dependencies are determined by the identifiers used in constructure parameters.
+Dependencies are determined by the identifiers used in constructor parameters.
 This was lifted directly from angular.js, and I believe may be the key to
 reducing the overhead in using a tool like this. Your dependency consuming
 classes do not have to be annotated or registered in any way.
 
-In this early alpha state, identifiers are resolved to types through simple
+By default, identifiers are resolved to types through simple
 string manipulation (similiar to ActiveSupport's `classify` and `constantize`).
 That means you can get an instance of `SomeService` by requesting
-`"SomeService"`, `"some_service"` or `:some_service`.
+`"SomeService"`, `"some_service"` or `:some_service`. The type is then
+instantiated (populating all of *its* dependencies using the same mechanism)
+and passed in to the constructor.
 
-In the future, I can imagine a simple configuration mechanism that lets you
-resolve an identifier to some other type, so `"notifier"` resolves to
-`EmailNotifier`.
+However, you can configure the injector to use types that differ from the
+parameter name, or return existing objects.
+
+## Configuration
+
+Currently, you configure the injector by passing an options `Hash` to
+`Ruse.create_injector` or to the `#configure` method of an `Injector` instance.
+You can call the `#configure` method multiple times, and each time the options
+will be merged into the existing options.
+
+Eventually there may be an API or DSL for building the options `Hash`, but for
+now, you need to know the specific keys that are understood internally.
+
+### Aliases
+
+Aliases are the most common configuration. They allow you to specify the type
+that should be injected for a given parameter name. In the example above,
+the `CreateOrderCommand` relies on a `:notifier`. By default, Ruse will
+attempt to inject an instance of `Notifier`. However, you may have two services
+that can act as a `notifier`: `EmailNotifier` or `FileSystemNotifier`.
+
+In production, you want real emails to be sent, so you would configure the
+injector to use `EmailNotifier`:
+
+```ruby
+Ruse.create_injector aliases: {notifier: "EmailNotifier"}
+```
+
+However, in testing, you just want to record notifications in the filesystem:
+
+```ruby
+Ruse.create_injector aliases: {notifier: "FileSystemNotifier"}
+```
+
+### Values
+
+Sometimes you want to inject a specific value, or existing object instance,
+instead of relying on the injector to create the instance.
+
+```ruby
+Ruse.create_injector values: {max_uploads: 42, file_system: File}
+```
+
+You could now create a class that depends on `file_system` and send messages
+exposed by `File`, without an explicit dependency on `File` (making it easy
+to pass in a stub file system during tests).
+
+### Factories / Procs / Delayed Evaluation
+
+Factories are similar to `values`, but allow you to delay the creation of the
+object until it is requested. For example, you might want to inject a
+connection to a 3rd party service, but you don't want to create the connection
+at configuration time - you want to wait until it is used.
+
+```ruby
+Ruse.create_injector factories: {
+  s3_connection:
+    ->{ AWS::S3.new(config).buckets["my_files"] }
+}
+```
 
 ## Installation
 
