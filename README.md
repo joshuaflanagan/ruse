@@ -97,6 +97,14 @@ and passed in to the constructor.
 However, you can configure the injector to use types that differ from the
 parameter name, or return existing objects.
 
+## Instance Lifecycle
+
+Currently, all objects retrieved from the injector are treated as singletons.
+This means that any time you ask a given injector for an instance of a
+service, you will always get the same exact instance. If you want a new
+instance, you need to use a new instance of the injector. In the future,
+the lifecycle may be configurable, but I haven't needed it yet.
+
 ## Configuration
 
 Currently, you configure the injector by passing an options `Hash` to
