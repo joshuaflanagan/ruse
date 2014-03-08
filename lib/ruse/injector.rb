@@ -1,3 +1,8 @@
+require 'ruse/proc_resolver'
+require 'ruse/type_resolver'
+require 'ruse/value_resolver'
+require 'ruse/object_factory'
+
 module Ruse
   class Injector
     def get(identifier)
@@ -60,98 +65,4 @@ module Ruse
   end
 
   class UnknownServiceError < StandardError; end
-
-  class ProcResolver
-    attr_reader :factories
-    def initialize(factories)
-      @factories = factories
-    end
-    def can_build?(identifier)
-      factories.key? identifier
-    end
-
-    def build(identifier)
-      factory = factories.fetch(identifier)
-      factory.call
-    end
-  end
-
-  class ValueResolver
-    attr_reader :values
-
-    def initialize(values)
-      @values = values
-    end
-
-    def can_build?(identifier)
-      values.key? identifier
-    end
-
-    def build(identifier)
-      values.fetch(identifier)
-    end
-  end
-
-  class TypeResolver
-    def initialize(injector)
-      @injector = injector
-    end
-
-    def can_build?(identifier)
-      type_name = self.class.classify(identifier)
-      load_type type_name
-    end
-
-    def build(identifier)
-      type = resolve_type identifier
-      object_factory.build(type)
-    end
-
-    def self.classify(term)
-      # lifted from active_support gem: lib/active_support/inflector/methods.rb
-      string = term.to_s
-      string = string.sub(/^[a-z\d]*/) { $&.capitalize }
-      string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{ $2.capitalize}" }.gsub('/', '::')
-    end
-
-    private
-
-    def load_type(type_name)
-      type_name.split('::').reduce(Object){|ns, name|
-        if ns.const_defined? name
-          ns.const_get name
-        end
-      }
-    end
-
-    def object_factory
-      @object_factory ||= ObjectFactory.new(@injector)
-    end
-
-    def resolve_type(identifier)
-      type_name = self.class.classify(identifier)
-      load_type type_name
-    end
-  end
-
-  class ObjectFactory
-    attr_reader :injector
-
-    def initialize(injector)
-      @injector = injector
-    end
-
-    def build(type)
-      args = resolve_dependencies type
-      type.new *args
-    end
-
-    private
-
-    def resolve_dependencies(type)
-      type.instance_method(:initialize).parameters.map{|_, identifier|
-        @injector.get identifier
-      }
-    end
-  end
 end
