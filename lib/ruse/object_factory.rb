@@ -23,7 +23,7 @@ module Ruse
       end
 
       def args
-        [*positional_args, **keyword_args].tap do |list|
+        [*positional_args, keyword_args].tap do |list|
           list.pop if list.last.empty?
         end
       end
