@@ -23,8 +23,12 @@ module Ruse
 
     private
 
+    def base_module
+      Object
+    end
+
     def load_type(type_name)
-      type_name.split('::').reduce(Object){|ns, name|
+      type_name.split('::').reduce(base_module){|ns, name|
         if ns.const_defined? name
           ns.const_get name
         end
