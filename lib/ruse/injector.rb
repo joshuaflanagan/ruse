@@ -18,6 +18,10 @@ module Ruse
       configuration.merge! settings
     end
 
+    def can_resolve?(identifier)
+      find_resolver(identifier) ? true : false
+    end
+
     private
 
     def cache_fetch(identifier, &block)
