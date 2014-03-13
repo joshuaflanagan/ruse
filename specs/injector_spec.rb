@@ -26,6 +26,27 @@ describe Ruse::Injector do
     }.must_raise(Ruse::UnknownServiceError)
   end
 
+  it "raises InvalidServiceName when identifier is nil" do
+    ->{
+      injector.get(nil)
+    }.must_raise(Ruse::InvalidServiceName)
+  end
+
+  it "raises InvalidServiceName when identifier is blank string" do
+    ->{
+      injector.get(" ")
+    }.must_raise(Ruse::InvalidServiceName)
+  end
+
+  it "cannot resolve a nil identifier" do
+    refute injector.can_resolve?(nil)
+  end
+
+  it "cannot resolve a blank string identifier" do
+    refute injector.can_resolve?(" ")
+  end
+
+
   it "populates dependencies for the instance it retrieves" do
     instance = injector.get("ConsumerA")
     instance.must_be_instance_of(ConsumerA)
