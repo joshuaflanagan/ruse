@@ -16,7 +16,9 @@ module Ruse
     end
 
     def configure(settings)
-      configuration.merge! settings
+      configuration.each do |key, hsh|
+        hsh.merge!(settings[key] || {})
+      end
     end
 
     def can_resolve?(identifier)
