@@ -96,6 +96,14 @@ describe Ruse::Injector do
     injector.get("Array").must_equal []
   end
 
+  it "can be reconfigured" do
+    injector.configure(values: { service_a: 'foo' })
+    injector.configure(values: { service_b: 'bar' })
+    object = injector.get(:consumer_a)
+    object.a.must_equal 'foo'
+    object.b.must_equal 'bar'
+  end
+
   class ServiceA; end
   class ServiceB; end
 
