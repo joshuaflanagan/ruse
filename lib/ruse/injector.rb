@@ -59,6 +59,17 @@ module Ruse
       }
     end
 
+    def reset_configuration
+      @configuration = nil
+    end
+    # Allow #initialize_clone to reset the configuration of the cloned injector
+    protected :reset_configuration
+
+    def initialize_clone(cloned_injector)
+      cloned_injector.reset_configuration
+      cloned_injector.configure(configuration)
+    end
+
     def aliases
       configuration[:aliases]
     end

@@ -104,6 +104,17 @@ describe Ruse::Injector do
     object.b.must_equal 'bar'
   end
 
+  it "duplicates configuration on cloning" do
+    injector.configure(values: { service_a: 'foo', service_b: 'bar' })
+    child_injector = injector.clone
+    child_injector.configure(values: { service_a: 'FOO' })
+    child_object = child_injector.get(:consumer_a)
+    parent_object = injector.get(:consumer_a)
+
+    child_object.a.must_equal 'FOO'
+    parent_object.a.must_equal 'foo'
+  end
+
   class ServiceA; end
   class ServiceB; end
 
