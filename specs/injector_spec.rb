@@ -26,6 +26,12 @@ describe Ruse::Injector do
     }.must_raise(Ruse::UnknownServiceError)
   end
 
+  it "raises CircularDependency when appropriate" do
+    ->{
+      injector.get("circular_a")
+    }.must_raise(Ruse::CircularDependency)
+  end
+
   it "raises InvalidServiceName when identifier is nil" do
     ->{
       injector.get(nil)
@@ -160,6 +166,15 @@ describe Ruse::Injector do
     end
   end
 end
+
+class CircularA
+  def initialize(circular_b); end
+end
+
+class CircularB
+  def initialize(circular_a); end
+end
+
 
 describe "classify" do
   it "converts an underscored_term to PascalCase" do
