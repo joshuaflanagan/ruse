@@ -13,6 +13,8 @@ module Ruse
         raise UnknownServiceError.new(identifier) unless resolver
         resolver.build identifier
       end
+    rescue SystemStackError
+      fail CircularDependency
     end
 
     def configure(settings)
@@ -99,4 +101,5 @@ module Ruse
 
   class UnknownServiceError < StandardError; end
   class InvalidServiceName < StandardError; end
+  class CircularDependency < StandardError; end
 end
