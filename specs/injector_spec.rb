@@ -20,6 +20,12 @@ describe Ruse::Injector do
       must_be_instance_of(Deep::Namespaced::Service)
   end
 
+  it "retrieves instance when identifier can be converted to a class in registered namespace" do
+    injector.configure namespaces: {"Unused" => true, "Deep::Namespaced" => true}
+    injector.get("Service").
+      must_be_instance_of(Deep::Namespaced::Service)
+  end
+
   it "raises UnknownServiceError for an identifier it cannot resolve" do
     ->{
       injector.get("cannot_be_resolved")

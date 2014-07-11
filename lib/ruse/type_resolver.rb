@@ -6,7 +6,7 @@ module Ruse
 
     def can_build?(identifier)
       type_name = self.class.classify(identifier)
-      load_type type_name
+      try_load_type type_name
     end
 
     def build(identifier)
@@ -23,12 +23,31 @@ module Ruse
 
     private
 
+    def namespaces
+      #TODO: fix when a build session is available with current config
+      @injector.__send__(:namespaces)
+    end
+
     def base_module
       Object
     end
 
+    def try_load_type(type_name)
+      loaded = load_type(type_name)
+      return loaded if loaded
+      if loaded
+        return loaded
+      end
+      namespaces.each do |ns|
+        loaded = load_type "#{ns}::#{type_name}"
+        return loaded if loaded
+      end
+      nil
+    end
+
     def load_type(type_name)
       type_name.split('::').reduce(base_module){|ns, name|
+        return nil if ns.nil?
         if ns.const_defined? name
           ns.const_get name
         end
@@ -41,7 +60,7 @@ module Ruse
 
     def resolve_type(identifier)
       type_name = self.class.classify(identifier)
-      load_type type_name
+      try_load_type type_name
     end
   end
 end

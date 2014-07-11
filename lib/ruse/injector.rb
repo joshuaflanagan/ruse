@@ -58,6 +58,7 @@ module Ruse
        aliases:{},
        values: {},
        factories: {},
+       namespaces: {}
       }
     end
 
@@ -82,6 +83,11 @@ module Ruse
 
     def factories
       configuration[:factories]
+    end
+
+    def namespaces
+      #TODO: support storing array in configuration
+      configuration[:namespaces].keys
     end
 
     def find_resolver(identifier)
