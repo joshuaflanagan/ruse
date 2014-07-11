@@ -1,5 +1,6 @@
 require 'ruse/proc_resolver'
-require 'ruse/type_resolver'
+require 'ruse/class_loader'
+require 'ruse/class_resolver'
 require 'ruse/value_resolver'
 require 'ruse/object_factory'
 
@@ -100,8 +101,17 @@ module Ruse
       @resolvers ||= [
         ProcResolver.new(factories),
         ValueResolver.new(values),
-        TypeResolver.new(self),
+        ClassResolver.new(self, class_loader),
       ]
+    end
+
+    def class_loader
+      if defined? ActiveSupport::Dependencies::ModuleConstMissing
+        require "ruse/activesupport"
+        ActiveSupportClassLoader.new(namespaces)
+      else
+        ClassLoader.new(namespaces)
+      end
     end
   end
 

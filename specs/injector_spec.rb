@@ -180,16 +180,3 @@ end
 class CircularB
   def initialize(circular_a); end
 end
-
-
-describe "classify" do
-  it "converts an underscored_term to PascalCase" do
-    resolver = Ruse::TypeResolver
-    resolver.classify("camel_case").must_equal("CamelCase")
-  end
-
-  it "echoes back a PascalCase term" do
-    resolver = Ruse::TypeResolver
-    resolver.classify("PascalCase").must_equal("PascalCase")
-  end
-end
