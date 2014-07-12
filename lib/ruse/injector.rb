@@ -17,7 +17,7 @@ module Ruse
         resolver.build identifier
       end
     rescue SystemStackError
-      fail CircularDependency
+      raise CircularDependency
     end
 
     def configure(settings)
@@ -28,7 +28,7 @@ module Ruse
 
     def can_resolve?(identifier)
       return false if invalid_identifier?(identifier)
-      find_resolver(identifier) ? true : false
+      find_resolver(identifier)
     end
 
     private
@@ -95,14 +95,11 @@ module Ruse
     end
 
     def namespaces
-      # TODO: support storing array in configuration
       configuration[:namespaces]
     end
 
     def find_resolver(identifier)
-      resolvers.detect {|h|
-        h.can_build?(identifier)
-      }
+      resolvers.detect {|r| r.can_build?(identifier) }
     end
 
     def resolvers

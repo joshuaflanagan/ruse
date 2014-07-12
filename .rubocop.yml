@@ -1,3 +1,7 @@
+AllCops:
+  Exclude:
+    - ruse.gemspec
+
 Style/Blocks:
   Enabled: false
 
@@ -27,13 +31,8 @@ Style/SignalException:
 Style/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - ruse.gemspec
-
-Style/RegexpLiteral:
-  Exclude:
-    - ruse.gemspec
+Style/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
 
 Style/StringLiterals:
   Enabled: false
@@ -41,14 +40,8 @@ Style/StringLiterals:
 Style/TrailingComma:
   EnforcedStyleForMultiline: comma
 
-Style/UnneededPercentQ:
-  Exclude:
-    - ruse.gemspec
-
 Style/GuardClause:
   MinBodyLength: 2
 
 Style/Encoding:
   EnforcedStyle: when_needed
-  Exclude:
-    - ruse.gemspec
