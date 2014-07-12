@@ -21,7 +21,7 @@ describe Ruse::Injector do
   end
 
   it "retrieves instance when identifier can be converted to a class in registered namespace" do
-    injector.configure namespaces: { "Unused" => true, "Deep::Namespaced" => true }
+    injector.configure(namespaces: ["Unused", "Deep::Namespaced"])
     injector.get("Service")
       .must_be_instance_of(Deep::Namespaced::Service)
   end

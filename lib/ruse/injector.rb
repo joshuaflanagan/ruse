@@ -21,8 +21,8 @@ module Ruse
     end
 
     def configure(settings)
-      configuration.each do |key, hsh|
-        hsh.merge!(settings[key] || {})
+      configuration.each do |setting_name, existing_values|
+        merge_setting(existing_values, settings[setting_name])
       end
     end
 
@@ -67,7 +67,7 @@ module Ruse
         aliases: {},
         values: {},
         factories: {},
-        namespaces: {},
+        namespaces: [],
       }
     end
 
@@ -96,7 +96,7 @@ module Ruse
 
     def namespaces
       # TODO: support storing array in configuration
-      configuration[:namespaces].keys
+      configuration[:namespaces]
     end
 
     def find_resolver(identifier)
@@ -119,6 +119,15 @@ module Ruse
         ActiveSupportClassLoader.new(namespaces)
       else
         ClassLoader.new(namespaces)
+      end
+    end
+
+    def merge_setting(existing, additions)
+      case existing
+      when Hash then existing.merge!(additions || {})
+      when Array then (existing << (additions || [])).flatten!.uniq!
+      else
+        raise "Configuration values must be a Hash or Array"
       end
     end
   end
