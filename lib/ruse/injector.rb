@@ -6,8 +6,10 @@ require 'ruse/object_factory'
 
 module Ruse
   class Injector
-    def get(identifier)
+    def get(identifier, overrides=nil)
       ensure_valid_identifier! identifier
+      return get_with_overrides(identifier, overrides) if overrides
+
       identifier = aliases[identifier] || identifier
       cache_fetch(identifier) do
         resolver = find_resolver identifier
@@ -30,6 +32,12 @@ module Ruse
     end
 
     private
+
+    def get_with_overrides(identifier, overrides)
+      request_injector = clone
+      request_injector.configure(overrides)
+      request_injector.get(identifier)
+    end
 
     def ensure_valid_identifier!(identifier)
       if invalid_identifier? identifier
