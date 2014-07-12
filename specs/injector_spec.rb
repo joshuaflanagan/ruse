@@ -16,36 +16,36 @@ describe Ruse::Injector do
   end
 
   it "retrieves instance when identifier is namespaced class name" do
-    injector.get("Deep::Namespaced::Service").
-      must_be_instance_of(Deep::Namespaced::Service)
+    injector.get("Deep::Namespaced::Service")
+      .must_be_instance_of(Deep::Namespaced::Service)
   end
 
   it "retrieves instance when identifier can be converted to a class in registered namespace" do
-    injector.configure namespaces: {"Unused" => true, "Deep::Namespaced" => true}
-    injector.get("Service").
-      must_be_instance_of(Deep::Namespaced::Service)
+    injector.configure namespaces: { "Unused" => true, "Deep::Namespaced" => true }
+    injector.get("Service")
+      .must_be_instance_of(Deep::Namespaced::Service)
   end
 
   it "raises UnknownServiceError for an identifier it cannot resolve" do
-    ->{
+    -> {
       injector.get("cannot_be_resolved")
     }.must_raise(Ruse::UnknownServiceError)
   end
 
   it "raises CircularDependency when appropriate" do
-    ->{
+    -> {
       injector.get("circular_a")
     }.must_raise(Ruse::CircularDependency)
   end
 
   it "raises InvalidServiceName when identifier is nil" do
-    ->{
+    -> {
       injector.get(nil)
     }.must_raise(Ruse::InvalidServiceName)
   end
 
   it "raises InvalidServiceName when identifier is blank string" do
-    ->{
+    -> {
       injector.get(" ")
     }.must_raise(Ruse::InvalidServiceName)
   end
@@ -58,7 +58,6 @@ describe Ruse::Injector do
     refute injector.can_resolve?(" ")
   end
 
-
   it "populates dependencies for the instance it retrieves" do
     instance = injector.get("ConsumerA")
     instance.must_be_instance_of(ConsumerA)
@@ -67,7 +66,7 @@ describe Ruse::Injector do
   end
 
   it "retrieves an instance based on a configured alias" do
-    injector.configure aliases: {special_service: "ServiceA"}
+    injector.configure aliases: { special_service: "ServiceA" }
     injector.get(:special_service).must_be_instance_of(ServiceA)
   end
 
@@ -168,7 +167,7 @@ describe Ruse::Injector do
   end
 
   class HasSplatInInitializer
-    def initialize(*args)
+    def initialize(*)
     end
   end
 end

@@ -1,0 +1,49 @@
+Style/Blocks:
+  Enabled: false
+
+Style/CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    collect!: 'map!'
+    find: 'detect'
+    inject: 'reduce'
+    find_all: 'select'
+
+Style/Documentation:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Style/RaiseArgs:
+  EnforcedStyle: compact
+
+Style/SignalException:
+  Enabled: false
+
+Style/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+Style/PercentLiteralDelimiters:
+  Exclude:
+    - ruse.gemspec
+
+Style/RegexpLiteral:
+  Exclude:
+    - ruse.gemspec
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/TrailingComma:
+  EnforcedStyleForMultiline: comma
+
+Style/UnneededPercentQ:
+  Exclude:
+    - ruse.gemspec
+
+Style/GuardClause:
+  MinBodyLength: 2

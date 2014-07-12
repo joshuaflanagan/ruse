@@ -7,9 +7,9 @@ module Ruse
     end
 
     def build(type)
-      initializer = Initializer.new @injector, type.instance_method(:initialize)
-      initializer.resolve_dependencies!
-      type.new *initializer.args
+      method = Initializer.new @injector, type.instance_method(:initialize)
+      method.resolve_dependencies!
+      type.new(*method.args)
     end
 
     class Initializer
@@ -86,8 +86,7 @@ module Ruse
       # Singleton object that be substituted for the other MethodArgument
       # subclasses when we don't want to try resolving the argument.
       module UnhandleableArgument
-        extend self
-        def resolve(*) end
+        def self.resolve(*) end
       end
     end
   end

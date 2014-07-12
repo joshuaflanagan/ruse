@@ -13,7 +13,9 @@ module Ruse
       # lifted from active_support gem: lib/active_support/inflector/methods.rb
       string = term.to_s
       string = string.sub(/^[a-z\d]*/) { $&.capitalize }
-      string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{ $2.capitalize}" }.gsub('/', '::')
+      string.gsub(/(?:_|(\/))([a-z\d]*)/i) {
+        "#{Regexp.last_match[1]}#{ Regexp.last_match[2].capitalize}"
+      }.gsub('/', '::')
     end
 
     private
@@ -35,11 +37,9 @@ module Ruse
     end
 
     def load_type(type_name)
-      type_name.split('::').reduce(base_module){|ns, name|
+      type_name.split('::').reduce(base_module) {|ns, name|
         return nil if ns.nil?
-        if ns.const_defined? name
-          ns.const_get name
-        end
+        ns.const_get(name) if ns.const_defined?(name)
       }
     end
   end

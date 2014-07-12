@@ -56,10 +56,10 @@ module Ruse
 
     def configuration
       @configuration ||= {
-       aliases:{},
-       values: {},
-       factories: {},
-       namespaces: {}
+        aliases: {},
+        values: {},
+        factories: {},
+        namespaces: {},
       }
     end
 
@@ -87,7 +87,7 @@ module Ruse
     end
 
     def namespaces
-      #TODO: support storing array in configuration
+      # TODO: support storing array in configuration
       configuration[:namespaces].keys
     end
 

@@ -8,7 +8,7 @@ describe Ruse do
   end
 
   it "passes configuration to the injector" do
-    injector = Ruse.create_injector({values: {answer: 42}})
+    injector = Ruse.create_injector(values: { answer: 42 })
     injector.get(:answer).must_equal 42
   end
 end

@@ -15,4 +15,3 @@ describe Ruse::ClassLoader do
     end
   end
 end
-

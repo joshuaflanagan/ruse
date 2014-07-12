@@ -1,8 +1,10 @@
 class ProcResolver
   attr_reader :factories
+
   def initialize(factories)
     @factories = factories
   end
+
   def can_build?(identifier)
     factories.key? identifier
   end

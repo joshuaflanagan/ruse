@@ -1,0 +1,7 @@
+inherit_from: ../.rubocop.yml
+
+Style/LineLength:
+  Max: 96
+
+Lint/UnusedMethodArgument:
+  Enabled: false
