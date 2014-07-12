@@ -47,3 +47,8 @@ Style/UnneededPercentQ:
 
 Style/GuardClause:
   MinBodyLength: 2
+
+Style/Encoding:
+  EnforcedStyle: when_needed
+  Exclude:
+    - ruse.gemspec
