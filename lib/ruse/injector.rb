@@ -5,17 +5,108 @@ require 'ruse/value_resolver'
 require 'ruse/object_factory'
 
 module Ruse
+  class Auditor
+
+    def begin_request(identifier, overrides)
+      if current
+        @current = current.add_child identifier, overrides
+      else
+        @current = Frame.new(identifier, overrides)
+      end
+    end
+
+    def aliased(new_identifier)
+      current.alias = new_identifier
+    end
+
+    def resolved_by(resolver)
+      current.resolver = resolver
+    end
+
+    def resolved_to(instance)
+      current.result = instance
+      @previous = current
+      @current = current.parent
+    end
+
+    def report(&block)
+      @previous.report(&block)
+    end
+
+    private
+
+    def current
+      @current
+    end
+
+    class Frame
+      attr_reader :identifier, :resolver, :result, :closed, :from_cache, :children
+      attr_accessor :alias, :level, :parent
+
+      def initialize(identifier, overrides, parent=nil)
+        @parent = parent
+        @identifier = identifier
+        @overrides = overrides
+        @from_cache = true
+        @children = []
+        @level = parent.nil? ? 0 : (parent.level + 1)
+      end
+
+      def report(&block)
+        if block.nil?
+          block = ->f{ f }
+        end
+        output = [block.call(self)]
+        output << children.map{|c| c.report(&block)}
+        output
+      end
+
+      def add_child(identifier, overrides)
+        child = Frame.new(identifier, overrides, self)
+        children.push child
+        child
+      end
+
+      def to_s
+        m = (" " * level) + "#{identifier.inspect}"
+        m << " (-> #{self.alias.inspect})" if self.alias
+        m << " resolved to #{result.inspect} by #{resolver}"
+        m << "(cached)" if from_cache
+        children.each {|c| m << "\n#{c.to_s}" }
+        m
+      end
+
+      def resolved_by(value)
+        @resolver = value
+        @from_cache = false
+      end
+
+      def result=(value)
+        @result = value
+        @closed = true
+      end
+    end
+  end
+
   class Injector
     def get(identifier, overrides=nil)
+      auditor.begin_request(identifier, overrides)
       ensure_valid_identifier! identifier
       return get_with_overrides(identifier, overrides) if overrides
 
-      identifier = aliases[identifier] || identifier
-      cache_fetch(identifier) do
+      aliased_as = aliases[identifier]
+      if aliased_as
+        identifier = aliased_as
+        auditor.aliased(identifier)
+      end
+      resolved_value = cache_fetch(identifier) do
         resolver = find_resolver identifier
         raise UnknownServiceError.new(identifier) unless resolver
+        auditor.resolved_by resolver
         resolver.build identifier
       end
+      auditor.resolved_to(resolved_value)
+      resolved_value
     rescue SystemStackError
       raise CircularDependency
     end
@@ -32,6 +123,10 @@ module Ruse
     end
 
     private
+
+    def auditor
+      @auditor ||= Auditor.new
+    end
 
     def get_with_overrides(identifier, overrides)
       request_injector = clone
